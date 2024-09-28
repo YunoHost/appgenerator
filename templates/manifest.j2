@@ -24,13 +24,13 @@ license = "{{ data.license }}"
 
 [integration]
 yunohost = '>= {{ data.yunohost_required_version or '11.2.30'}}'
-{% if data.generator_mode == "tutorial" -%}
 helpers_version = "2.1"
+{% if data.generator_mode == "tutorial" -%}
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
 {% endif -%}
-architectures = "{{ data.architectures }}" # TODO : handle the "all" option (no ["all"])
+architectures = "{{ data.architectures }}"
 multi_instance = {{ "true" if data.multi_instance else "false" }}
-ldap = "{{ data.ldap }}" # TODO : fixme, use actual booleans + handle the "not_relevant" value
+ldap = "{{ data.ldap }}"
 sso = "{{ data.sso }}"
 # FIXME: replace with an **estimate** minimum disk and RAM requirements. e.g. 20M, 400M, 1G... You may have have a look at CI results
 disk = "50M"
