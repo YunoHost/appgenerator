@@ -26,6 +26,12 @@ ynh_print_info "Declaring files to be backed up..."
 ### script is called. Hence ynh_backups calls take basically 0 seconds to run.
 {% endif %}
 
+#=================================================
+# BACKUP THE APP MAIN DIR
+#=================================================
+
+ynh_backup "$install_dir"
+
 {% if data.data_dir -%}
 #=================================================
 # BACKUP THE DATA DIR
