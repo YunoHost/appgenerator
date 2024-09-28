@@ -158,7 +158,7 @@
       </div>
       <div class="panel-body hide">
           <p class="tip">
-              {{ _("Technical elements configured before launching the 'real' app install script. Usually : creating a system user, downloading app sources, initialiser le dossier d'install et de données, install apt dependencies, create a database, ...") }}
+              {{ _("Technical elements configured before launching the 'real' app install script. Usually : creating a system user, downloading app sources, initialiser le dossier d'install et de données, install apt dependencies, create a database...") }}
           </p>
 
           <h3>Sources du logiciel</h3>
@@ -242,7 +242,7 @@
             {
                 if (document.getElementById("use_yarn").checked)
                 {
-                    install_snippet.value = "ynh_exec_as $app $ynh_node_load_PATH yarn install --production --pure-lockfile\nynh_exec_as $app $ynh_node_load_PATH yarn build";
+                    install_snippet.value = "ynh_exec_as_app yarn install --production --pure-lockfile\nynh_exec_as_app yarn build";
                 }
                 else
                 {
