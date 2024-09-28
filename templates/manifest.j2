@@ -84,7 +84,6 @@ ram.runtime = "50M"
     default = "admins"
     {% endif %}
 
-
 [resources]
     {% if data.generator_mode == "tutorial" -%}
     # See the packaging documentation for the full set
@@ -95,16 +94,8 @@ ram.runtime = "50M"
     [resources.sources]
 
         [resources.sources.main]
-        # This will pre-fetch the asset which can then be deployed during the install/upgrade scripts with :
-        #    ynh_setup_source --dest_dir="$install_dir"
-        # You can also define other assets than "main" and add --source_id="foobar" in the previous command
         url = "{{data.source_url}}"
         sha256 = "{{data.sha256sum}}"
-
-        # These infos are used by https://github.com/YunoHost/apps/blob/master/tools/autoupdate_app_sources/autoupdate_app_sources.py
-        # to auto-update the previous asset urls and sha256sum + manifest version
-        # assuming the upstream's code repo is on github and relies on tags or releases
-        # See the 'sources' resource documentation for more details
 
         {% if data.auto_update != "none" -%}
         autoupdate.strategy = "{{ data.auto_update }}"
