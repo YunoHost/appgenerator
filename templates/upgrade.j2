@@ -23,40 +23,31 @@ source /usr/share/yunohost/helpers
 ### - resources are automatically provisioned / updated / deleted (depending on existing resources)
 ### - a safety backup is automatically created by the core and will be restored if the upgrade fails
 {% endif %}
-upgrade_type=$(ynh_check_app_version_changed)
 
 #=================================================
 # ENSURE DOWNWARD COMPATIBILITY
 #=================================================
 {% if data.generator_mode == 'tutorial' -%}
-#ynh_script_progression --message="Ensuring downward compatibility..."
+#ynh_script_progression "Ensuring downward compatibility..."
 
-#
-# N.B. : the followings setting migrations snippets are provided as *EXAMPLES*
-# of what you may want to do in some cases (e.g. a setting was not defined on
-# some legacy installs and you therefore want to initialize stuff during upgrade)
-#
+### N.B. : the following setting migration snippets are provided as *EXAMPLES*
+### of what you may want to do in some cases (e.g. a setting was not defined on
+### some legacy installs and you therefore want to initiaze stuff during upgrade)
 
 # If db_name doesn't exist, create it
-#if [ -z "${db_name:-}" ]; then
-#	db_name=$(ynh_sanitize_dbid --db_name=$app)
-#	ynh_app_setting_set --app=$app --key=db_name --value=$db_name
-#fi
+# ynh_app_setting_set_default --key=db_name --value="$(ynh_sanitize_dbid --db_name=$app)"
 
 # If install_dir doesn't exist, create it
-#if [ -z "${install_dir:-}" ]; then
-#	install_dir=/var/www/$app
-#	ynh_app_setting_set --app=$app --key=install_dir --value=$install_dir
-#fi
+# ynh_app_setting_set_default --key=install_dir --value="/var/www/$app"
 {% endif %}
 
 {% if data.main_technology not in ["php", "none"] -%}
 #=================================================
 # STOP SYSTEMD SERVICE
 #=================================================
-ynh_script_progression "Stopping a systemd service..."
+ynh_script_progression "Stopping $app's systemd service..."
 
-ynh_systemd_action --service="$app" --action="stop"
+ynh_systemctl --service="$app" --action="stop"
 {% endif %}
 
 #=================================================
@@ -64,8 +55,7 @@ ynh_systemd_action --service="$app" --action="stop"
 #=================================================
 ynh_script_progression "Upgrading source files..."
 
-# Download, check integrity, uncompress and patch the source from app.src
-ynh_setup_source --dest_dir="$install_dir" --full_replace  --keep=".env data"
+ynh_setup_source --dest_dir="$install_dir" --full_replace --keep=".env data"
 	{{ data.custom_config_file }}
 
 {% if data.generator_mode == 'tutorial' -%}
@@ -135,7 +125,6 @@ ynh_config_add_logrotate
 {% endif %}
 
 {% if data.use_fail2ban -%}
-# Create a dedicated Fail2Ban config
 ynh_config_add_fail2ban --logpath="/var/log/nginx/${domain}-error.log" --failregex="{{ data.fail2ban_regex }}"
 {% endif %}
 

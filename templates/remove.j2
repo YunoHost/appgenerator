@@ -42,7 +42,6 @@ ynh_config_remove_logrotate
 {% endif %}
 
 {% if data.main_technology not in ["php", "none"] -%}
-# Remove the service from the list of services known by YunoHost (added from `yunohost service add`)
 if ynh_exec_warn_less yunohost service status "$app" >/dev/null; then
 	yunohost service remove "$app"
 fi
@@ -56,7 +55,6 @@ ynh_remove_nginx_config
 ynh_config_remove_phpfpm
 {% endif %}
 
-# Remove other various files specific to the app... such as :
 {% if data.use_cron -%}
 ynh_safe_rm "/etc/cron.d/$app"
 {% endif %}

@@ -29,7 +29,6 @@ source /usr/share/yunohost/helpers
 ###
 ### $app is the app id (i.e. 'example' for first install,
 ### or 'example__2', '__3'... for multi-instance installs)
-#
 {% endif %}
 
 #=================================================
@@ -50,82 +49,17 @@ ynh_script_progression "Setting up source files..."
 
 {% if data.generator_mode == 'tutorial' -%}
 ### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
-### downloaded from an upstream source, as defined in the manifest.toml
+### downloaded from an upstream source, like a git repository.
+### `ynh_setup_source` use the file manifest.toml
 {% endif %}
-
 ynh_setup_source --dest_dir="$install_dir"
 
 {% if data.generator_mode == 'tutorial' -%}
-# $install_dir will automatically be initialized with some decent
-# permission by default ... however, you may need to recursively reapply
-# ownership to all files such as after the ynh_setup_source step
+### $install_dir will automatically be initialized with some decent
+### permission by default... however, you may need to recursively reapply
+### ownership to all files such as after the ynh_setup_source step
 {% endif %}
 chown -R $app:www-data "$install_dir"
-
-#=================================================
-# SYSTEM CONFIGURATION
-#=================================================
-ynh_script_progression "Adding system configurations related to $app..."
-
-{% if data.main_technology == "php" -%}
-# Create a dedicated PHP-FPM config
-# conf/extra_php-fpm.conf will be appended to the auto-generated config, which will go in /etc/php/X.Y/fpm/pool.d/
-ynh_config_add_phpfpm
-{% endif %}
-
-# Create a dedicated NGINX config using the conf/nginx.conf template
-ynh_config_add_nginx
-
-{% if data.main_technology not in ["php", "none"] -%}
-{% if data.generator_mode == 'tutorial' -%}
-### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
-{% endif %}
-# Create a dedicated systemd config
-ynh_config_add_systemd
-
-{% if data.generator_mode == 'tutorial' -%}
-### `yunohost service add` integrates a service in YunoHost. It then gets
-### displayed in the admin interface and through the others `yunohost service` commands.
-{% endif %}
-
-yunohost service add "$app" --log="/var/log/$app/$app.log"
-
-{% if data.generator_mode == 'tutorial' -%}
-### Additional options starting with 3.8:
-###
-### --needs_exposed_ports "$port" a list of ports that needs to be publicly exposed
-###                               which will then be checked by YunoHost's diagnosis system
-###                               (N.B. DO NOT USE THIS is the port is only internal!!!)
-###
-### --test_status "some command"  a custom command to check the status of the service
-###                               (only relevant if 'systemctl status' doesn't do a good job)
-###
-### --test_conf "some command"    some command similar to "nginx -t" that validates the conf of the service
-###
-### Re-calling 'yunohost service add' during the upgrade script is the right way
-### to proceed if you later realize that you need to enable some flags that
-### weren't enabled on old installs (be careful it'll override the existing
-### service though so you should re-provide all relevant flags when doing so)
-{% endif -%}
-{% endif %}
-
-{% if data.use_logrotate %}
-# Use logrotate to manage application logfile(s)
-ynh_config_add_logrotate
-{% endif %}
-
-{% if data.use_fail2ban -%}
-# Create a dedicated Fail2Ban config
-ynh_config_add_fail2ban --logpath="/var/log/nginx/${domain}-error.log" --failregex="{{ data.fail2ban_regex }}"
-{% endif %}
-
-{% if data.use_cron -%}
-# Add cron job
-cron_path="/etc/cron.d/$app"
-ynh_add_config --template="../conf/task.cron" --destination="$cron_path"
-chown root: "$cron_path"
-chmod 644 "$cron_path"
-{% endif %}
 
 #=================================================
 # APP INITIAL CONFIGURATION
@@ -163,6 +97,64 @@ chown $app:$app "$install_dir/{{ data.custom_config_file }}"
 ### ynh_store_file_checksum --file="$install_dir/some_config_file"
 {% endif %}
 
+#=================================================
+# SYSTEM CONFIGURATION
+#=================================================
+ynh_script_progression "Adding system configurations related to $app..."
+
+{% if data.main_technology == "php" -%}
+# Create a PHP-FPM config (with conf/extra_php-fpm.conf being appended to it)
+ynh_config_add_phpfpm
+{% endif %}
+
+ynh_config_add_nginx
+
+{% if data.main_technology not in ["php", "none"] -%}
+{% if data.generator_mode == 'tutorial' -%}
+### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
+{% endif %}
+ynh_config_add_systemd
+
+{% if data.generator_mode == 'tutorial' -%}
+### `yunohost service add` integrates a service in YunoHost. It then gets
+### displayed in the admin interface and through the others `yunohost service` commands.
+{% endif %}
+
+{% if data.generator_mode == 'tutorial' -%}
+### Additional options starting with 3.8:
+###
+### --needs_exposed_ports "$port" a list of ports that needs to be publicly exposed
+###                               which will then be checked by YunoHost's diagnosis system
+###                               (N.B. DO NOT USE THIS if the port is only internal!!!)
+###
+### --test_status "some command"  a custom command to check the status of the service
+###                               (only relevant if 'systemctl status' doesn't do a good job)
+###
+### --test_conf "some command"    some command similar to "nginx -t" that validates the conf of the service
+###
+### Re-calling 'yunohost service add' during the upgrade script is the right way
+### to proceed if you later realize that you need to enable some flags that
+### weren't enabled on old installs (be careful it'll override the existing
+### service though so you should re-provide all relevant flags when doing so)
+{% endif -%}
+yunohost service add "$app" --log="/var/log/$app/$app.log"
+{% endif %}
+
+{% if data.use_logrotate %}
+ynh_config_add_logrotate
+{% endif %}
+
+{% if data.use_fail2ban -%}
+ynh_config_add_fail2ban --logpath="/var/log/nginx/${domain}-error.log" --failregex="{{ data.fail2ban_regex }}"
+{% endif %}
+
+{% if data.use_cron -%}
+cron_path="/etc/cron.d/$app"
+ynh_add_config --template="../conf/task.cron" --destination="$cron_path"
+chown root: "$cron_path"
+chmod 644 "$cron_path"
+{% endif %}
+
 {% if data.install_snippet -%}
 #=================================================
 # INSTALL APP
@@ -195,7 +187,7 @@ popd
 ynh_script_progression "Starting $app's systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service="$app" --action="start"
+ynh_systemctl --service="$app" --action="start"
 {% endif %}
 
 #=================================================
