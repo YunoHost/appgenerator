@@ -12,7 +12,7 @@ source venv/bin/activate
 pip3 install -r requirements.txt
 
 # you need to manually download the assets to have access to the css and the javascript files
-(cd assets && bash fetch_assets)
+(cd static && bash fetch_assets)
 ```
 
 And then start the dev server:
