@@ -24,7 +24,7 @@ FLASK_APP=app.py FLASK_ENV=development flask --debug run
 
 ## Translation
 
-It's based on Flask-Babel : <https://python-babel.github.io/flask-babel/>
+It's based on Flask-Babel: <https://python-babel.github.io/flask-babel/>
 
 ```bash
 source venv/bin/activate
