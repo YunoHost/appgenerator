@@ -7,55 +7,46 @@
 # Once you are done, you may remove them.
 {% endif %}
 
-#=================================================
-# GENERIC START
-#=================================================
-# IMPORT GENERIC HELPERS
-#=================================================
 source _common.sh
 source /usr/share/yunohost/helpers
 
 {% if data.generator_mode == 'tutorial' -%}
-# Install parameters are automatically saved as settings
-#
-# Settings are automatically loaded as bash variables
-# in every app script context, therefore typically these will exist:
-# - $domain
-# - $path
-# - $language
-# ... etc
-#
-# Resources defined in the manifest are provisioned prior to this script
-# and corresponding settings are also available, such as:
-# - $install_dir
-# - $port
-# - $db_name
-# ...
-
-#
-# $app is the app id (i.e. 'example' for first install,
-# or 'example__2', '__3', ... for multi-instance installs)
+### Install parameters are automatically saved as settings
+###
+### Settings are automatically loaded as bash variables
+### in every app script context, therefore typically these will exist:
+### - $domain
+### - $path
+### - $language
+### ... etc
+###
+### Resources defined in the manifest are provisioned prior to this script
+### and corresponding settings are also available, such as:
+### - $install_dir
+### - $port
+### - $db_name
+### ...
+###
+### $app is the app id (i.e. 'example' for first install,
+### or 'example__2', '__3'... for multi-instance installs)
 #
 {% endif %}
 
 #=================================================
 # INSTALL DEPENDENCIES
 #=================================================
-
 {% if data.main_technology == "nodejs" -%}
-ynh_script_progression --message="Installing NodeJS..." --weight=10
+ynh_script_progression "Installing NodeJS..."
 
 # Install Nodejs
-ynh_exec_warn_less ynh_install_nodejs --nodejs_version=$nodejs_version
-ynh_use_nodejs
+ynh_nodejs_install
+
 {% endif %}
 
 #=================================================
-# APP "BUILD" (DEPLOYING SOURCES, VENV, COMPILING ETC)
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
-ynh_script_progression --message="Setting up source files..."
+ynh_script_progression "Setting up source files..."
 
 {% if data.generator_mode == 'tutorial' -%}
 ### `ynh_setup_source` is used to install an app from a zip or tar.gz file,
@@ -74,30 +65,30 @@ chown -R $app:www-data "$install_dir"
 #=================================================
 # SYSTEM CONFIGURATION
 #=================================================
-ynh_script_progression --message="Adding system configurations related to $app..."
+ynh_script_progression "Adding system configurations related to $app..."
 
 {% if data.main_technology == "php" -%}
 # Create a dedicated PHP-FPM config
 # conf/extra_php-fpm.conf will be appended to the auto-generated config, which will go in /etc/php/X.Y/fpm/pool.d/
-ynh_add_fpm_config
+ynh_config_add_phpfpm
 {% endif %}
 
 # Create a dedicated NGINX config using the conf/nginx.conf template
-ynh_add_nginx_config
+ynh_config_add_nginx
 
 {% if data.main_technology not in ["php", "none"] -%}
 {% if data.generator_mode == 'tutorial' -%}
 ### `ynh_systemd_config` is used to configure a systemd script for an app, using the conf/systemd.service template
 {% endif %}
 # Create a dedicated systemd config
-ynh_add_systemd_config
+ynh_config_add_systemd
 
 {% if data.generator_mode == 'tutorial' -%}
 ### `yunohost service add` integrates a service in YunoHost. It then gets
 ### displayed in the admin interface and through the others `yunohost service` commands.
 {% endif %}
 
-yunohost service add $app --log="/var/log/$app/$app.log"
+yunohost service add "$app" --log="/var/log/$app/$app.log"
 
 {% if data.generator_mode == 'tutorial' -%}
 ### Additional options starting with 3.8:
@@ -120,12 +111,12 @@ yunohost service add $app --log="/var/log/$app/$app.log"
 
 {% if data.use_logrotate %}
 # Use logrotate to manage application logfile(s)
-ynh_use_logrotate
+ynh_config_add_logrotate
 {% endif %}
 
 {% if data.use_fail2ban -%}
 # Create a dedicated Fail2Ban config
-ynh_add_fail2ban_config --logpath="/var/log/nginx/${domain}-error.log" --failregex="{{ data.fail2ban_regex }}"
+ynh_config_add_fail2ban --logpath="/var/log/nginx/${domain}-error.log" --failregex="{{ data.fail2ban_regex }}"
 {% endif %}
 
 {% if data.use_cron -%}
@@ -139,9 +130,7 @@ chmod 644 "$cron_path"
 #=================================================
 # APP INITIAL CONFIGURATION
 #=================================================
-# ADD A CONFIGURATION
-#=================================================
-ynh_script_progression --message="Adding app's configuration file..."
+ynh_script_progression "Adding $app's configuration files..."
 
 {% if data.generator_mode == 'tutorial' -%}
 ### You can add specific configuration files.
@@ -178,7 +167,7 @@ chown $app:$app "$install_dir/{{ data.custom_config_file }}"
 #=================================================
 # INSTALL APP
 #=================================================
-ynh_script_progression --message="Installing app..." --weight=5
+ynh_script_progression "Installing $app..."
 
 pushd $install_dir
 {{ data.install_snippet }}
@@ -196,20 +185,21 @@ popd
 ### forms.
 {% endif %}
 
-# REMOVEME? ynh_script_progression --message="Finalizing installation..."
-# REMOVEME? ynh_local_curl "/INSTALL_PATH" "key1=value1" "key2=value2" "key3=value3"
+#ynh_script_progression "Finalizing installation..."
+#ynh_local_curl "/INSTALL_PATH" "key1=value1" "key2=value2" "key3=value3"
 
 {% if data.main_technology not in ["php", "none"] -%}
 #=================================================
 # START SYSTEMD SERVICE
 #=================================================
-ynh_script_progression --message="Starting app's systemd service..."
+ynh_script_progression "Starting $app's systemd service..."
 
 # Start a systemd service
-ynh_systemd_action --service_name=$app --action="start" --log_path="/var/log/$app/$app.log"
+ynh_systemd_action --service="$app" --action="start"
 {% endif %}
 
 #=================================================
 # END OF SCRIPT
 #=================================================
-ynh_script_progression --message="Installation of $app completed" --last
+
+ynh_script_progression "Installation of $app completed"

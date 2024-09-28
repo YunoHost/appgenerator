@@ -23,8 +23,9 @@ license = "{{ data.license }}"
 {% if data.code -%}code = "{{ data.code }}"{%- endif %}
 
 [integration]
-yunohost = '>= {{ data.yunohost_required_version or '11.2'}}'
+yunohost = '>= {{ data.yunohost_required_version or '11.2.30'}}'
 {% if data.generator_mode == "tutorial" -%}
+helpers_version = "2.1"
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
 {% endif -%}
 architectures = "{{ data.architectures }}" # TODO : handle the "all" option (no ["all"])
