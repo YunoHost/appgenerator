@@ -631,15 +631,18 @@ class GeneratorForm(
         },
     )
 
+
 # SHA256 sum calculator
 def get_remote_sha256_sum(url):
     remote = urllib.request.urlopen(url)
     hash = hashlib.sha256()
     while True:
         data = remote.read(4096)
-        if not data: break
+        if not data:
+            break
         hash.update(data)
     return hash.hexdigest()
+
 
 #### Web pages
 @app.route("/", methods=["GET", "POST"])
@@ -715,10 +718,10 @@ def main_form_route():
             app_files.append(AppFile("ADMIN", "doc/ADMIN.md"))
 
         template_dir = os.path.dirname(__file__) + "/templates/"
-        
+
         data = dict(request.form)
         data["sha256sum"] = get_remote_sha256_sum(main_form.source_url.data)
-        
+
         for app_file in app_files:
             template = open(template_dir + app_file.id + ".j2").read()
             app_file.content = render_template_string(template, data=data)
