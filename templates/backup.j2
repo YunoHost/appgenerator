@@ -85,9 +85,9 @@ ynh_print_info "Backing up the {{ data.database }} database..."
 ### copy of the generated dump to the archive still happens later)
 {% endif %}
 
-{% if data.use_db == 'mysql' -%}
+{% if data.database == 'mysql' -%}
 ynh_mysql_dump_db > db.sql
-{% elif data.use_db == 'postgresql' -%}
+{% elif data.database == 'postgresql' -%}
 ynh_psql_dump_db > db.sql
 {% endif %}
 {% endif %}
