@@ -681,6 +681,7 @@ def main_form_route():
             AppFile("upgrade", "scripts/upgrade"),
             AppFile("nginx", "conf/nginx.conf"),
             AppFile("LICENSE", "LICENSE"),
+            AppFile("editorconfig", ".editorconfig"),
         ]
 
         if main_form.enable_change_url.data:
