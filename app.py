@@ -126,7 +126,6 @@ class GeneralInfos(FlaskForm):
         description=_(
             "Explain in a few words (10-15) why this app is useful or what it does (the goal is to give a broad idea for the user browsing an hundred apps long catalog"
         ),
-        validators=[DataRequired()],
     )
 
 
