@@ -32,19 +32,6 @@ source /usr/share/yunohost/helpers
 {% endif %}
 
 #=================================================
-# INSTALL DEPENDENCIES
-#=================================================
-ynh_script_progression "Installing dependencies..."
-
-{% if data.main_technology == "nodejs" -%}
-ynh_nodejs_install
-{% endif %}
-
-{% if data.main_technology == "go" -%}
-ynh_go_install
-{% endif %}
-
-#=================================================
 # DOWNLOAD, CHECK AND UNPACK SOURCE
 #=================================================
 ynh_script_progression "Setting up source files..."

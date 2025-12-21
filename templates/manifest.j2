@@ -23,7 +23,7 @@ license = "{{ data.license }}"
 {% if data.code -%}code = "{{ data.code }}"{%- endif %}
 
 [integration]
-yunohost = '>= {{ data.yunohost_required_version or '11.2.30'}}'
+yunohost = '>= {{ data.yunohost_required_version or '12.1.17'}}'
 helpers_version = "2.1"
 {% if data.generator_mode == "tutorial" -%}
 # List of supported archs using the dpkg --print-architecture nomenclature (amd64/i386/armhf/arm64), for example: ["amd64", "i386']
@@ -160,3 +160,13 @@ ram.runtime = "50M"
     {% endif -%}
     type = "{{ data.database }}"
     {%- endif -%}
+
+    {% if data.main_technology == "nodejs" -%}
+    [resources.nodejs]
+    nodejs_version={{ data.nodejs_version }}
+    {% endif %}
+
+    {% if data.main_technology == "go" -%}
+    [resources.go]
+    go_version={{ data.go_version }}
+    {% endif %}

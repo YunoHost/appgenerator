@@ -158,9 +158,9 @@ class IntegrationInfos(FlaskForm):
         choices=[
             ("all", _("All architectures")),
             ("amd64", "amd64"),
-            ("i386", "i386"),
-            ("armhf", "armhf"),
             ("arm64", "arm64"),
+            ("armhf", "armhf"),
+            ("i386", "i386"),
         ],
         default=["all"],
         validators=[DataRequired()],
@@ -183,7 +183,7 @@ class IntegrationInfos(FlaskForm):
             ("true", _("Yes")),
             ("not_relevant", _("Not relevant")),
         ],
-        default="not_relevant",
+        default="false",
         validators=[DataRequired()],
     )
     sso = SelectField(
@@ -261,7 +261,7 @@ class InstallQuestions(FlaskForm):
         ),
         default="true",
         choices=[
-            ("true", _("Ask domain+path")),
+            ("true", _("Ask domain and path")),
             (
                 "full_domain",
                 _(
@@ -271,7 +271,6 @@ class InstallQuestions(FlaskForm):
             ("false", _("Do not ask (it isn't a webapp)")),
         ],
     )
-
 
     init_main_permission = SelectField(
         _("Ask who can access to the app"),
@@ -292,7 +291,8 @@ class InstallQuestions(FlaskForm):
         default=False,
     )
 
-# manifest
+
+# Manifest
 class Resources(FlaskForm):
 
     # Sources
@@ -312,12 +312,12 @@ class Resources(FlaskForm):
         default="none",
         choices=[
             ("none", "Non"),
-            ("latest_github_tag", "Github (tag)"),
-            ("latest_github_release", "Github (release)"),
-            ("latest_github_commit", "Github (commit)"),
-            ("latest_gitlab_tag", "Gitlab (tag)"),
-            ("latest_gitlab_release", "Gitlab (release)"),
-            ("latest_gitlab_commit", "Gitlab (commit)"),
+            ("latest_github_tag", "GitHub (tag)"),
+            ("latest_github_release", "GitHub (release)"),
+            ("latest_github_commit", "GitHub (commit)"),
+            ("latest_gitlab_tag", "GitLab (tag)"),
+            ("latest_gitlab_release", "GitLab (release)"),
+            ("latest_gitlab_commit", "GitLab (commit)"),
             ("latest_gitea_tag", "Gitea (tag)"),
             ("latest_gitea_release", "Gitea (release)"),
             ("latest_gitea_commit", "Gitea (commit)"),
@@ -553,7 +553,7 @@ class MoreAdvanced(FlaskForm):
         _("Protect against brute force attacks"),
         default=False,
         description=_(
-            "Use fail2ban, assuming the app logs failed connection attempts, this option allows to automatically ban suspicious IP after a number of failed attempts."
+            "Use Fail2Ban, assuming the app logs failed connection attempts, this option allows to automatically ban suspicious IP after a number of failed attempts."
         ),
     )
     use_cron = BooleanField(
@@ -609,7 +609,7 @@ class GeneratorForm(
             ("simple", _("Streamlined version")),
             ("tutorial", _("Tutorial version")),
         ],
-        default="true",
+        default="simple",
         validators=[DataRequired()],
     )
 
